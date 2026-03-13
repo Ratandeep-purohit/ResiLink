@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Society Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="login-body">
+    <div class="login-card">
+        <h1 class="login-title">Society Management</h1>
+        <p class="login-subtitle">Sign in to your account</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" required placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required placeholder="Enter password">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="role">Login As</label>
+                <select id="role" name="role" class="form-control" required>
+                    <option value="" disabled selected>Select panel...</option>
+                    <option value="admin">Admin</option>
+                    <option value="guard">Guard</option>
+                    <option value="resident">Resident</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-top: 24px;">
+                <button type="submit" class="btn btn-block">Sign In</button>
+            </div>
+        </form>
+        <p style="text-align: center; margin-top: 16px; font-size: 0.875rem; color: #6b7280;">
+            Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Society Management{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div class="stat-card">
+        <div class="stat-label">Visitors Today</div>
+        <div class="stat-value">{{ stats.visitors_today }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Pending Complaints</div>
+        <div class="stat-value">{{ stats.pending_complaints }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Available Parking</div>
+        <div class="stat-value">{{ stats.available_parking }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Pending Payments</div>
+        <div class="stat-value">{{ stats.pending_payments }}</div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">Recent Notifications</div>
+    {% if notifications %}
+    <ul class="notification-list">
+        {% for n in notifications %}
+        <li class="notification-item">
+            <strong>{{ n.title }}</strong>
+            <span class="text-muted">{{ n.created_at.strftime('%b %d, %Y') if n.created_at else '' }}</span>
+            <p>{{ n.message }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No notifications yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

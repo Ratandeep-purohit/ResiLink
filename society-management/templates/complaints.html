@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Complaints - Society Management{% endblock %}
+{% block page_title %}Complaint Management{% endblock %}
+
+{% block content %}
+{% if current_user.role in ['admin', 'resident'] %}
+<div class="card">
+    <div class="card-header">Lodge a Complaint</div>
+    <form method="POST" action="{{ url_for('add_complaint') }}">
+        <div class="form-row form-row-3">
+            <div class="form-group">
+                <label class="form-label" for="block">Block</label>
+                <select id="block" name="block" class="form-control" required>
+                    <option value="">Select Block</option>
+                    <option value="A">Block A</option>
+                    <option value="B">Block B</option>
+                    <option value="C">Block C</option>
+                    <option value="D">Block D</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="flat_number">Flat Number</label>
+                <input type="text" id="flat_number" name="flat_number" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="category">Category</label>
+                <select id="category" name="category" class="form-control">
+                    <option value="General">General</option>
+                    <option value="Plumbing">Plumbing</option>
+                    <option value="Electrical">Electrical</option>
+                    <option value="Cleanliness">Cleanliness</option>
+                    <option value="Security">Security</option>
+                    <option value="Noise">Noise</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="description">Description</label>
+            <textarea id="description" name="description" class="form-control" rows="4" required placeholder="Describe your issue in detail..."></textarea>
+        </div>
+        <button type="submit" class="btn">Submit Complaint</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="card mt-4">
+    <div class="card-header">Complaint History</div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#ID</th>
+                    <th>Resident</th>
+                    <th>Block</th>
+                    <th>Flat</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    {% if current_user.role == 'admin' %}
+                    <th>Action</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in complaints %}
+                <tr>
+                    <td>#C-{{ c.id }}</td>
+                    <td>{{ c.resident_name }}</td>
+                    <td>{{ c.block }}</td>
+                    <td>{{ c.flat_number }}</td>
+                    <td>{{ c.category }}</td>
+                    <td class="desc-cell">{{ c.description }}</td>
+                    <td>
+                        {% if c.status == 'Open' %}
+                        <span class="badge badge-primary">Open</span>
+                        {% elif c.status == 'In Progress' %}
+                        <span class="badge badge-warning">In Progress</span>
+                        {% elif c.status == 'Resolved' %}
+                        <span class="badge badge-success">Resolved</span>
+                        {% else %}
+                        <span class="badge">{{ c.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ c.created_at.strftime('%b %d, %Y') if c.created_at else '' }}</td>
+                    {% if current_user.role == 'admin' %}
+                    <td>
+                        <form method="POST" action="{{ url_for('update_complaint', complaint_id=c.id) }}" class="inline-form">
+                            <select name="status" class="form-control form-control-sm">
+                                <option value="Open" {% if c.status == 'Open' %}selected{% endif %}>Open</option>
+                                <option value="In Progress" {% if c.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                                <option value="Closed" {% if c.status == 'Closed' %}selected{% endif %}>Closed</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm">Update</button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr><td colspan="9" class="text-muted text-center">No complaints filed.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

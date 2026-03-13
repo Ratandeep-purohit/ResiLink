@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Manage Users - Society Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">All Registered Users</div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Block</th>
+                    <th>Flat</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.role | capitalize }}</td>
+                    <td>{{ u.block or '-' }}</td>
+                    <td>{{ u.flat_number or '-' }}</td>
+                    <td>{{ u.phone or '-' }}</td>
+                    <td>
+                        {% if u.is_active %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-danger">Disabled</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.created_at.strftime('%b %d, %Y') if u.created_at else '' }}</td>
+                    <td>
+                        {% if u.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('toggle_user', user_id=u.id) }}" class="inline-form">
+                            {% if u.is_active %}
+                            <button type="submit" class="btn btn-secondary btn-sm">Disable</button>
+                            {% else %}
+                            <button type="submit" class="btn btn-sm">Enable</button>
+                            {% endif %}
+                        </form>
+                        {% else %}
+                        <span class="text-muted">You</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

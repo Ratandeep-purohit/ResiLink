@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Society Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="login-body">
+    <div class="login-card" style="max-width: 480px;">
+        <h1 class="login-title">Create Account</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}">
+            <div class="form-group">
+                <label class="form-label" for="name">Full Name</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" required minlength="6">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="role">Role</label>
+                    <select id="role" name="role" class="form-control">
+                        <option value="resident">Resident</option>
+                        <option value="guard">Guard</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone</label>
+                    <input type="tel" id="phone" name="phone" class="form-control">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="block">Block</label>
+                    <input type="text" id="block" name="block" class="form-control" placeholder="e.g. A">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="flat_number">Flat Number</label>
+                    <input type="text" id="flat_number" name="flat_number" class="form-control" placeholder="e.g. 101">
+                </div>
+            </div>
+            <div class="form-group" style="margin-top: 24px;">
+                <button type="submit" class="btn btn-block">Register</button>
+            </div>
+        </form>
+        <p style="text-align: center; margin-top: 16px; font-size: 0.875rem; color: #6b7280;">
+            Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+        </p>
+    </div>
+</body>
+</html>

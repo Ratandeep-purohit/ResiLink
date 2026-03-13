@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Notifications - Society Management{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+
+{% block content %}
+{% if current_user.role == 'admin' %}
+<div class="card">
+    <div class="card-header">Post Notification</div>
+    <form method="POST" action="{{ url_for('add_notification') }}">
+        <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+                <label class="form-label" for="title">Title</label>
+                <input type="text" id="title" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="target_role">Target Audience</label>
+                <select id="target_role" name="target_role" class="form-control">
+                    <option value="all">Everyone</option>
+                    <option value="resident">Residents Only</option>
+                    <option value="guard">Guards Only</option>
+                    <option value="admin">Admins Only</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="message">Message</label>
+            <textarea id="message" name="message" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn">Publish</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="card mt-4">
+    <div class="card-header">All Notifications</div>
+    {% if notifications %}
+    <ul class="notification-list">
+        {% for n in notifications %}
+        <li class="notification-item">
+            <div class="notif-header">
+                <strong>{{ n.title }}</strong>
+                <span class="text-muted">{{ n.created_at.strftime('%b %d, %Y %I:%M %p') if n.created_at else '' }}</span>
+            </div>
+            <p>{{ n.message }}</p>
+            <span class="text-muted" style="font-size: 0.75rem;">
+                Target: {{ n.target_role | capitalize }} | By: {{ n.author or 'System' }}
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">No notifications.</p>
+    {% endif %}
+</div>
+{% endblock %}
