@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Payments - Society Management{% endblock %}
+{% block page_title %}Maintenance Payments{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">Payment Summary</div>
+    <div class="payment-summary">
+        <div>
+            <div class="text-muted" style="font-size: 0.875rem;">Total Outstanding</div>
+            <div class="summary-amount">₹ {{ "%.2f"|format(total_due) }}</div>
+        </div>
+    </div>
+</div>
+
+{% if current_user.role == 'admin' %}
+<div class="card mt-4">
+    <div class="card-header">Generate Monthly Bills</div>
+    <form method="POST" action="{{ url_for('generate_bills') }}">
+        <div class="form-row form-row-3">
+            <div class="form-group">
+                <label class="form-label" for="bill_period">Bill Period</label>
+                <input type="text" id="bill_period" name="bill_period" class="form-control" required placeholder="e.g. March 2026">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="amount">Amount (₹)</label>
+                <input type="number" id="amount" name="amount" class="form-control" required step="0.01" value="2500">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="due_date">Due Date</label>
+                <input type="date" id="due_date" name="due_date" class="form-control" required>
+            </div>
+        </div>
+        <button type="submit" class="btn">Generate for All Residents</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="card mt-4">
+    <div class="card-header">Billing History</div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    {% if current_user.role == 'admin' %}
+                    <th>Resident</th>
+                    <th>Flat</th>
+                    {% endif %}
+                    <th>Bill Period</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Paid On</th>
+                    <th>Status</th>
+                    <th>Ref</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in payments %}
+                <tr>
+                    {% if current_user.role == 'admin' %}
+                    <td>{{ p.resident_name }}</td>
+                    <td>{{ p.block }}-{{ p.flat_number }}</td>
+                    {% endif %}
+                    <td>{{ p.bill_period }}</td>
+                    <td>₹ {{ "%.2f"|format(p.amount) }}</td>
+                    <td>{{ p.due_date.strftime('%b %d, %Y') if p.due_date else '' }}</td>
+                    <td>{{ p.paid_on.strftime('%b %d, %Y') if p.paid_on else '-' }}</td>
+                    <td>
+                        {% if p.status == 'Paid' %}
+                        <span class="badge badge-success">Paid</span>
+                        {% elif p.status == 'Overdue' %}
+                        <span class="badge badge-danger">Overdue</span>
+                        {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ p.transaction_ref or '-' }}</td>
+                    <td>
+                        {% if p.status != 'Paid' %}
+                        <form method="POST" action="{{ url_for('pay_bill', payment_id=p.id) }}" class="inline-form">
+                            <button type="submit" class="btn btn-sm">Pay Now</button>
+                        </form>
+                        {% else %}
+                        <button class="btn btn-secondary btn-sm" onclick="window.print()">Receipt</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="9" class="text-muted text-center">No billing records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

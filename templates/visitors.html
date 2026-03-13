@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Visitors - Society Management{% endblock %}
+{% block page_title %}Visitor Management{% endblock %}
+
+{% block content %}
+{% if current_user.role in ['admin', 'guard'] %}
+<div class="card">
+    <div class="card-header">New Visitor Entry</div>
+    <form method="POST" action="{{ url_for('add_visitor') }}">
+        <div class="form-row form-row-3">
+            <div class="form-group">
+                <label class="form-label" for="visitor_name">Visitor Name</label>
+                <input type="text" id="visitor_name" name="visitor_name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="visiting_flat">Visiting Flat</label>
+                <input type="text" id="visiting_flat" name="visiting_flat" class="form-control" required placeholder="e.g. 402">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label" for="visiting_block">Block</label>
+                <input type="text" id="visiting_block" name="visiting_block" class="form-control" placeholder="e.g. A">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="purpose">Purpose</label>
+                <input type="text" id="purpose" name="purpose" class="form-control" placeholder="e.g. Delivery, Guest">
+            </div>
+        </div>
+        <button type="submit" class="btn">Register Visitor</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="card mt-4">
+    <div class="card-header">Visitor Log</div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Flat</th>
+                    <th>Block</th>
+                    <th>Purpose</th>
+                    <th>Entry</th>
+                    <th>Exit</th>
+                    <th>OTP Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in visitors %}
+                <tr>
+                    <td>{{ v.visitor_name }}</td>
+                    <td>{{ v.phone }}</td>
+                    <td>{{ v.visiting_flat }}</td>
+                    <td>{{ v.visiting_block or '-' }}</td>
+                    <td>{{ v.purpose or '-' }}</td>
+                    <td>{{ v.entry_time.strftime('%I:%M %p') if v.entry_time else '-' }}</td>
+                    <td>{{ v.exit_time.strftime('%I:%M %p') if v.exit_time else '-' }}</td>
+                    <td>
+                        {% if v.otp_verified %}
+                        <span class="badge badge-success">Verified</span>
+                        {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="action-cell">
+                        {% if not v.otp_verified %}
+                        <form method="POST" action="{{ url_for('verify_visitor', visitor_id=v.id) }}" class="inline-form">
+                            <input type="text" name="otp" placeholder="OTP" class="form-control form-control-sm" required>
+                            <button type="submit" class="btn btn-sm">Verify</button>
+                        </form>
+                        {% endif %}
+                        {% if not v.exit_time and current_user.role in ['admin', 'guard'] %}
+                        <form method="POST" action="{{ url_for('mark_visitor_exit', visitor_id=v.id) }}" class="inline-form">
+                            <button type="submit" class="btn btn-secondary btn-sm">Mark Exit</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="9" class="text-muted text-center">No visitor records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

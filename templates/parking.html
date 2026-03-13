@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Parking - Society Management{% endblock %}
+{% block page_title %}Parking Management{% endblock %}
+
+{% block content %}
+<!-- Slot overview grid -->
+<div class="card">
+    <div class="card-header">Slot Overview</div>
+    <div class="slot-grid">
+        {% for s in slots %}
+        <div class="slot-item {% if s.is_occupied %}occupied{% else %}available{% endif %}">
+            <span class="slot-label">{{ s.slot_label }}</span>
+            {% if s.is_occupied %}
+            <span class="badge badge-danger">Occupied</span>
+            {% else %}
+            <span class="badge badge-success">Free</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if current_user.role == 'admin' %}
+<div class="card mt-4">
+    <div class="card-header">Assign Parking Slot</div>
+    <form method="POST" action="{{ url_for('register_vehicle') }}">
+        <div class="form-row form-row-3">
+            <div class="form-group">
+                <label class="form-label" for="slot_id">Available Slot</label>
+                <select id="slot_id" name="slot_id" class="form-control" required>
+                    <option value="">Select slot</option>
+                    {% for s in slots %}
+                    {% if not s.is_occupied %}
+                    <option value="{{ s.id }}">{{ s.slot_label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="resident_id">Resident ID</label>
+                <input type="number" id="resident_id" name="resident_id" class="form-control" required placeholder="User ID">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="vehicle_number">Vehicle Number</label>
+                <input type="text" id="vehicle_number" name="vehicle_number" class="form-control" required placeholder="MH 01 AB 1234">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="vehicle_type">Vehicle Type</label>
+            <select id="vehicle_type" name="vehicle_type" class="form-control" style="max-width: 200px;">
+                <option value="Car">Car</option>
+                <option value="Bike">Bike</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <button type="submit" class="btn">Assign Slot</button>
+    </form>
+</div>
+{% endif %}
+
+<div class="card mt-4">
+    <div class="card-header">Allocation Details</div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Slot</th>
+                    <th>Owner</th>
+                    <th>Flat</th>
+                    <th>Vehicle Number</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    {% if current_user.role == 'admin' %}
+                    <th>Action</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in slots %}
+                <tr>
+                    <td>{{ s.slot_label }}</td>
+                    <td>{{ s.owner_name or '-' }}</td>
+                    <td>{{ s.flat_number or '-' }}</td>
+                    <td>{{ s.vehicle_number or '-' }}</td>
+                    <td>{{ s.vehicle_type }}</td>
+                    <td>
+                        {% if s.is_occupied %}
+                        <span class="badge badge-danger">Occupied</span>
+                        {% else %}
+                        <span class="badge badge-success">Available</span>
+                        {% endif %}
+                    </td>
+                    {% if current_user.role == 'admin' %}
+                    <td>
+                        {% if s.is_occupied %}
+                        <form method="POST" action="{{ url_for('release_slot', slot_id=s.id) }}" class="inline-form">
+                            <button type="submit" class="btn btn-secondary btn-sm">Release</button>
+                        </form>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
